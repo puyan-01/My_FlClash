@@ -154,7 +154,12 @@ class ProxyCard extends ConsumerWidget {
                 child: _ProxyDesc(proxy: proxy, style: typeStyle),
               ),
               const SizedBox(height: 6),
-              delayText,
+              Row(
+                children: [
+                  delayText,
+                  _PurityBadge(proxyName: proxy.name),
+                ],
+              ),
             ],
           )
         : SizedBox(
@@ -169,8 +174,8 @@ class ProxyCard extends ConsumerWidget {
                     text: Text(proxy.type, maxLines: 1, style: typeStyle),
                   ),
                 ),
-                _PurityBadge(proxyName: proxy.name),
                 delayText,
+                _PurityBadge(proxyName: proxy.name),
               ],
             ),
           );
@@ -431,11 +436,11 @@ class _PurityBadge extends ConsumerWidget {
       _ => colorScheme.error,
     };
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(left: 8),
       child: HoverTooltip(
         message: 'IPPure ${purity.score} · ${purity.countryCode}',
         child: Text(
-          'IP ${purity.score}',
+          '${purity.score} ${context.appLocalizations.ipQualityShort}',
           maxLines: 1,
           style: AppTextStyle.caption2
               .of(context, emphasized: true)
