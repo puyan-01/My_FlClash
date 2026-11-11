@@ -652,7 +652,7 @@ class ListHeader extends ConsumerWidget {
                       final hasPurity = group.all.any(
                         (proxy) => purity.containsKey(proxy.name),
                       );
-                      if (!hasPurity) {
+                      if (!hasPurity && group.all.length <= 20) {
                         ref
                             .read(nodePurityProvider.notifier)
                             .scanGroup(groupName);
