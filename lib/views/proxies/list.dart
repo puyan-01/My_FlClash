@@ -646,7 +646,18 @@ class ListHeader extends ConsumerWidget {
               onDelayTest: () {
                 ref
                     .read(proxiesActionProvider.notifier)
-                    .delayTestPageGroup(groupName);
+                    .delayTestPageGroup(groupName)
+                    .then((_) {
+                      final purity = ref.read(nodePurityProvider).byNode;
+                      final hasPurity = group.all.any(
+                        (proxy) => purity.containsKey(proxy.name),
+                      );
+                      if (!hasPurity) {
+                        ref
+                            .read(nodePurityProvider.notifier)
+                            .scanGroup(groupName);
+                      }
+                    });
               },
               onPurityTest: () {
                 ref.read(nodePurityProvider.notifier).scanGroup(groupName);
