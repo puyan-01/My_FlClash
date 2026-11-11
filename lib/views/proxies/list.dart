@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/node_purity.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -606,6 +607,11 @@ class ListHeader extends ConsumerWidget {
     final isDelayTesting = ref.watch(
       delayTestingGroupsProvider.select((state) => state.contains(groupName)),
     );
+    final isPurityTesting = ref.watch(
+      nodePurityProvider.select(
+        (state) => state.testingGroups.contains(groupName),
+      ),
+    );
     final colorScheme = context.colorScheme;
     final level = floating > 0
         ? SurfaceLevel.floatingOf(colorScheme)
@@ -632,6 +638,7 @@ class ListHeader extends ConsumerWidget {
             _GroupActions(
               isExpand: isExpand,
               isDelayTesting: isDelayTesting,
+              isPurityTesting: isPurityTesting,
               groupType: group.type.name,
               onScrollToSelected: () {
                 onScrollToSelected(groupName);
@@ -640,6 +647,9 @@ class ListHeader extends ConsumerWidget {
                 ref
                     .read(proxiesActionProvider.notifier)
                     .delayTestPageGroup(groupName);
+              },
+              onPurityTest: () {
+                ref.read(nodePurityProvider.notifier).scanGroup(groupName);
               },
               onToggle: () {
                 onChange(groupName);
@@ -805,17 +815,21 @@ class _GroupActions extends StatelessWidget {
   const _GroupActions({
     required this.isExpand,
     required this.isDelayTesting,
+    required this.isPurityTesting,
     required this.groupType,
     required this.onScrollToSelected,
     required this.onDelayTest,
+    required this.onPurityTest,
     required this.onToggle,
   });
 
   final bool isExpand;
   final bool isDelayTesting;
+  final bool isPurityTesting;
   final String groupType;
   final VoidCallback onScrollToSelected;
   final VoidCallback onDelayTest;
+  final VoidCallback onPurityTest;
   final VoidCallback onToggle;
 
   @override
@@ -840,6 +854,13 @@ class _GroupActions extends StatelessWidget {
                   icon: isDelayTesting
                       ? const ActivityIndicator(size: 24)
                       : const GlyphIcon(AppGlyphs.bolt),
+                ),
+                IconButton(
+                  tooltip: context.appLocalizations.ipQualityLevel,
+                  onPressed: isPurityTesting ? null : onPurityTest,
+                  icon: isPurityTesting
+                      ? const ActivityIndicator(size: 24)
+                      : const GlyphIcon(AppGlyphs.checkCircle),
                 ),
               ],
             )

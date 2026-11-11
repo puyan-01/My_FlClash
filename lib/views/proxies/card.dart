@@ -1,6 +1,7 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/node_purity.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
@@ -168,6 +169,7 @@ class ProxyCard extends ConsumerWidget {
                     text: Text(proxy.type, maxLines: 1, style: typeStyle),
                   ),
                 ),
+                _PurityBadge(proxyName: proxy.name),
                 delayText,
               ],
             ),
@@ -402,6 +404,42 @@ class _DelayTextState extends ConsumerState<_DelayText> {
                     ),
                   ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 节点名的右侧展示 IPPure 风险系数，扫描前不占位。
+class _PurityBadge extends ConsumerWidget {
+  const _PurityBadge({required this.proxyName});
+
+  final String proxyName;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final purity = ref.watch(
+      nodePurityProvider.select((state) => state.byNode[proxyName]),
+    );
+    if (purity == null) {
+      return const SizedBox.shrink();
+    }
+    final colorScheme = context.colorScheme;
+    final color = switch (purity.score) {
+      <= NodePurityNotifier.threshold => colorScheme.primary,
+      <= 70 => colorScheme.onSurfaceVariant,
+      _ => colorScheme.error,
+    };
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: HoverTooltip(
+        message: 'IPPure ${purity.score} · ${purity.countryCode}',
+        child: Text(
+          'IP ${purity.score}',
+          maxLines: 1,
+          style: AppTextStyle.caption2
+              .of(context, emphasized: true)
+              .copyWith(color: color),
         ),
       ),
     );
