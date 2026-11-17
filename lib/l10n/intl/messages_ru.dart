@@ -1096,10 +1096,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "installCertificateSuccess": MessageLookupByLibrary.simpleMessage(
       "Сертификат установлен",
     ),
-    "installedAppsPermissionDeniedMessage":
-        MessageLookupByLibrary.simpleMessage(
-          "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
-        ),
+    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
+      "Разрешение на список приложений отклонено, поэтому установленные приложения недоступны. Предоставьте его вручную в системных настройках.",
+    ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "Эта система не выдаёт список установленных приложений без разрешения. Предоставьте его, чтобы настроить прокси для отдельных приложений.",
     ),
@@ -1176,10 +1175,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipQualityLevel": MessageLookupByLibrary.simpleMessage("Уровень"),
     "ipQualityNormal": MessageLookupByLibrary.simpleMessage("Обычный"),
     "ipQualityRetry": MessageLookupByLibrary.simpleMessage("Проверить снова"),
+    "ipQualityRiskHigh": MessageLookupByLibrary.simpleMessage("Высокий риск"),
+    "ipQualityRiskLow": MessageLookupByLibrary.simpleMessage("Низкий риск"),
+    "ipQualityRiskMedium": MessageLookupByLibrary.simpleMessage("Средний риск"),
     "ipQualityRisky": MessageLookupByLibrary.simpleMessage("Рискованный"),
     "ipQualityShort": MessageLookupByLibrary.simpleMessage("Качество"),
     "ipQualitySource": MessageLookupByLibrary.simpleMessage("Источник ответа"),
     "ipQualitySources": MessageLookupByLibrary.simpleMessage("Источники"),
+    "ipQualityUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Нет результата",
+    ),
     "ipSourceIpMismatch": MessageLookupByLibrary.simpleMessage(
       "Другой исходящий IP",
     ),
@@ -1670,6 +1675,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m83,
     "proxiesReplacedTip": m84,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Цепочка прокси"),
+    "proxyDelayAndPurityTest": MessageLookupByLibrary.simpleMessage(
+      "Проверить задержку и качество IP",
+    ),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Группа прокси"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "Группа прокси пуста",

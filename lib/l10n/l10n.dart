@@ -7408,6 +7408,56 @@ class AppLocalizations {
     return Intl.message('Quality', name: 'ipQualityShort', desc: '', args: []);
   }
 
+  /// `Low risk`
+  String get ipQualityRiskLow {
+    return Intl.message(
+      'Low risk',
+      name: 'ipQualityRiskLow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Medium risk`
+  String get ipQualityRiskMedium {
+    return Intl.message(
+      'Medium risk',
+      name: 'ipQualityRiskMedium',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `High risk`
+  String get ipQualityRiskHigh {
+    return Intl.message(
+      'High risk',
+      name: 'ipQualityRiskHigh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No result`
+  String get ipQualityUnavailable {
+    return Intl.message(
+      'No result',
+      name: 'ipQualityUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Test latency and IP quality`
+  String get proxyDelayAndPurityTest {
+    return Intl.message(
+      'Test latency and IP quality',
+      name: 'proxyDelayAndPurityTest',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Unknown type`
   String get ipTypeUnknown {
     return Intl.message(
@@ -7663,7 +7713,8 @@ class AppLocalizations {
   String customImportDroppedSubRules(num count, Object label) {
     return Intl.plural(
       count,
-      one: '1 SUB-RULE rule was dropped, since custom profiles do not support sub-rules',
+      one:
+          '1 SUB-RULE rule was dropped, since custom profiles do not support sub-rules',
       other:
           '$label SUB-RULE rules were dropped, since custom profiles do not support sub-rules',
       name: 'customImportDroppedSubRules',

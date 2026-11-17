@@ -95,14 +95,12 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     animateScrollTo(controller, rowOffset);
   }
 
-  Future<void> delayTestCurrentGroup() async {
+  Future<void> testCurrentGroup() async {
     final group = currentGroup;
     if (group == null) {
       return;
     }
-    await ref
-        .read(proxiesActionProvider.notifier)
-        .delayTestPageGroup(group.name);
+    await testProxyPageGroup(ref, group.name);
   }
 
   Group? get currentGroup {

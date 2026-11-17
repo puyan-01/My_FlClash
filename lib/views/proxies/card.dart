@@ -1,4 +1,5 @@
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/common/ippure.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/node_purity.dart';
@@ -138,6 +139,7 @@ class ProxyCard extends ConsumerWidget {
       testUrl: testUrl,
       alignment: isLoose ? Alignment.centerLeft : Alignment.centerRight,
     );
+    final purityBadge = _PurityBadge(proxyName: proxy.name);
     final proxyNameText = _buildProxyNameText(context);
     final typeStyle = AppTextStyle.footnote
         .of(context)
@@ -157,7 +159,7 @@ class ProxyCard extends ConsumerWidget {
               Row(
                 children: [
                   delayText,
-                  _PurityBadge(proxyName: proxy.name),
+                  Flexible(child: purityBadge),
                 ],
               ),
             ],
@@ -174,8 +176,16 @@ class ProxyCard extends ConsumerWidget {
                     text: Text(proxy.type, maxLines: 1, style: typeStyle),
                   ),
                 ),
-                delayText,
-                _PurityBadge(proxyName: proxy.name),
+                Flexible(
+                  flex: 2,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(child: delayText),
+                      Flexible(child: purityBadge),
+                    ],
+                  ),
+                ),
               ],
             ),
           );
@@ -415,7 +425,6 @@ class _DelayTextState extends ConsumerState<_DelayText> {
   }
 }
 
-/// 节点名的右侧展示 IPPure 风险系数，扫描前不占位。
 class _PurityBadge extends ConsumerWidget {
   const _PurityBadge({required this.proxyName});
 
@@ -423,30 +432,41 @@ class _PurityBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final purity = ref.watch(
-      nodePurityProvider.select((state) => state.byNode[proxyName]),
+    final (purity, failed) = ref.watch(
+      nodePurityProvider.select(
+        (state) =>
+            (state.byNode[proxyName], state.failedNodes.contains(proxyName)),
+      ),
     );
-    if (purity == null) {
+    if (purity == null && !failed) {
       return const SizedBox.shrink();
     }
     final colorScheme = context.colorScheme;
-    final color = switch (purity.score) {
-      <= NodePurityNotifier.threshold => colorScheme.primary,
-      <= 70 => colorScheme.onSurfaceVariant,
-      _ => colorScheme.error,
-    };
-    return Padding(
-      padding: const EdgeInsets.only(left: 8),
-      child: HoverTooltip(
-        message: 'IPPure ${purity.score} · ${purity.countryCode}',
-        child: Text(
-          '${purity.score} ${context.appLocalizations.ipQualityShort}',
-          maxLines: 1,
-          style: AppTextStyle.caption2
-              .of(context, emphasized: true)
-              .copyWith(color: color),
-        ),
+    final l10n = context.appLocalizations;
+    final (label, color) = switch (purity?.score) {
+      null => (l10n.ipQualityUnavailable, colorScheme.onSurfaceVariant),
+      <= IpPurity.lowRiskMax => (l10n.ipQualityRiskLow, colorScheme.success),
+      <= IpPurity.mediumRiskMax => (
+        l10n.ipQualityRiskMedium,
+        colorScheme.warning,
       ),
+      _ => (l10n.ipQualityRiskHigh, colorScheme.error),
+    };
+    final text = Text(
+      label,
+      maxLines: 1,
+      style: AppTextStyle.caption2
+          .of(context, emphasized: true)
+          .copyWith(overflow: TextOverflow.ellipsis, color: color),
+    );
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 8),
+      child: purity == null
+          ? text
+          : HoverTooltip(
+              message: 'IPPure ${purity.score} · ${purity.countryCode}',
+              child: text,
+            ),
     );
   }
 }

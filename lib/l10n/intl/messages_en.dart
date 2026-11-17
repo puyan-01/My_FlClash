@@ -1048,10 +1048,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "installCertificateSuccess": MessageLookupByLibrary.simpleMessage(
       "Certificate installed",
     ),
-    "installedAppsPermissionDeniedMessage":
-        MessageLookupByLibrary.simpleMessage(
-          "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
-        ),
+    "installedAppsPermissionDeniedMessage": MessageLookupByLibrary.simpleMessage(
+      "The app list permission was denied, so installed apps cannot be listed. Please grant it manually in system settings.",
+    ),
     "installedAppsPermissionDesc": MessageLookupByLibrary.simpleMessage(
       "This system hides the installed app list until the permission is granted. Authorize it to configure the per-app proxy.",
     ),
@@ -1128,10 +1127,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "ipQualityLevel": MessageLookupByLibrary.simpleMessage("Level"),
     "ipQualityNormal": MessageLookupByLibrary.simpleMessage("Normal"),
     "ipQualityRetry": MessageLookupByLibrary.simpleMessage("Check again"),
+    "ipQualityRiskHigh": MessageLookupByLibrary.simpleMessage("High risk"),
+    "ipQualityRiskLow": MessageLookupByLibrary.simpleMessage("Low risk"),
+    "ipQualityRiskMedium": MessageLookupByLibrary.simpleMessage("Medium risk"),
     "ipQualityRisky": MessageLookupByLibrary.simpleMessage("Risky"),
     "ipQualityShort": MessageLookupByLibrary.simpleMessage("Quality"),
     "ipQualitySource": MessageLookupByLibrary.simpleMessage("Answered by"),
     "ipQualitySources": MessageLookupByLibrary.simpleMessage("Sources"),
+    "ipQualityUnavailable": MessageLookupByLibrary.simpleMessage("No result"),
     "ipSourceIpMismatch": MessageLookupByLibrary.simpleMessage(
       "Different outbound IP",
     ),
@@ -1590,6 +1593,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m83,
     "proxiesReplacedTip": m84,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Proxy chain"),
+    "proxyDelayAndPurityTest": MessageLookupByLibrary.simpleMessage(
+      "Test latency and IP quality",
+    ),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Proxy group"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "Proxy group is empty",

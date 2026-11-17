@@ -1,10 +1,20 @@
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/action.dart';
+import 'package:fl_clash/providers/node_purity.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prism_ui/typography.dart';
 
 const proxyGridSpacing = 8.0;
+
+Future<void> testProxyPageGroup(WidgetRef ref, String groupName) async {
+  await Future.wait([
+    ref.read(proxiesActionProvider.notifier).delayTestPageGroup(groupName),
+    ref.read(nodePurityProvider.notifier).scanGroup(groupName),
+  ]);
+}
 
 double get listHeaderHeight {
   final measure = globalState.measure;

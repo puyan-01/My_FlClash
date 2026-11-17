@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/database.dart';
+import 'package:fl_clash/providers/node_purity.dart';
 import 'package:fl_clash/providers/state.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
@@ -31,12 +35,47 @@ class _TabStateNotifier extends Notifier<ProxiesTabState> {
   void set(ProxiesTabState value) => state = value;
 }
 
+class _RecordingProxiesAction extends ProxiesAction {
+  final tested = <String>[];
+
+  @override
+  Future<void> delayTestPageGroup(
+    String groupName, {
+    bool matchSearch = true,
+  }) async {
+    tested.add(groupName);
+  }
+}
+
+class _RecordingNodePurity extends NodePurityNotifier {
+  final tested = <String>[];
+  final firstScan = Completer<void>.sync();
+
+  @override
+  Future<void> scanGroup(String groupName) async {
+    tested.add(groupName);
+    if (firstScan.isCompleted) {
+      return;
+    }
+    state = state.copyWith(testingGroups: {groupName});
+    try {
+      await firstScan.future;
+    } finally {
+      state = state.copyWith(testingGroups: {});
+    }
+  }
+}
+
 void main() {
   late ProviderContainer globalContainer;
   late ProviderSubscription<Profile?> currentProfileSubscription;
+  late _RecordingProxiesAction delay;
+  late _RecordingNodePurity purity;
 
   setUp(() {
     final profile = Profile.normal().copyWith(currentGroupName: 'B');
+    delay = _RecordingProxiesAction();
+    purity = _RecordingNodePurity();
     globalContainer = ProviderContainer(
       overrides: [
         currentProfileIdProvider.overrideWithBuild((_, _) => profile.id),
@@ -47,6 +86,8 @@ void main() {
         proxiesTabStateProvider.overrideWith(
           (ref) => ref.watch(_tabStateProvider),
         ),
+        proxiesActionProvider.overrideWith(() => delay),
+        nodePurityProvider.overrideWith(() => purity),
       ],
     );
     globalState.container = globalContainer;
@@ -484,6 +525,38 @@ void main() {
 
     expect(globalContainer.read(currentGroupDelayTestingProvider), isTrue);
     expect(tester.widget(find.byType(GroupTabs)), same(tabs));
+  });
+
+  testWidgets('the toolbar bolt refreshes both checks on every press', (
+    tester,
+  ) async {
+    globalContainer
+        .read(proxiesStyleSettingProvider.notifier)
+        .update((state) => state.copyWith(type: ProxiesType.tab));
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: globalContainer,
+        child: const TestApp(child: ProxiesView()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(isTabSelected(tester, 'B'), isTrue);
+    final button = find.byTooltip('Test latency and IP quality').hitTestable();
+
+    await tester.tap(button);
+    await tester.pump();
+    expect(delay.tested, ['B']);
+    expect(purity.tested, ['B']);
+    expect(find.byGlyph(AppGlyphs.bolt), findsNothing);
+
+    purity.firstScan.complete();
+    await tester.pumpAndSettle();
+    expect(find.byGlyph(AppGlyphs.bolt), findsOneWidget);
+
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(delay.tested, ['B', 'B']);
+    expect(purity.tested, ['B', 'B']);
   });
 
   testWidgets('rebuilds the tab bar when groups return', (tester) async {

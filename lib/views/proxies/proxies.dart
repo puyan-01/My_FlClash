@@ -1,6 +1,7 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/node_purity.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/views/proxies/list.dart';
@@ -118,13 +119,23 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
       return null;
     }
     final isDelayTesting = ref.watch(currentGroupDelayTestingProvider);
+    final groupName = ref.watch(
+      proxiesTabControllerStateProvider.select(
+        (state) => state.currentGroupName,
+      ),
+    );
+    final isPurityTesting = ref.watch(
+      nodePurityProvider.select(
+        (state) => state.testingGroups.contains(groupName),
+      ),
+    );
     return IconButtonData(
       glyph: AppGlyphs.bolt,
       onPressed: () {
-        _proxiesTabKey.currentState?.delayTestCurrentGroup();
+        _proxiesTabKey.currentState?.testCurrentGroup();
       },
-      tooltip: context.appLocalizations.delayTest,
-      isLoading: isDelayTesting,
+      tooltip: context.appLocalizations.proxyDelayAndPurityTest,
+      isLoading: isDelayTesting || isPurityTesting,
     );
   }
 

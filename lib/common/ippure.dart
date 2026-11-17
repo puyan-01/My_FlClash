@@ -1,7 +1,10 @@
-import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:dio/dio.dart';
+import 'package:fl_clash/core/controller.dart';
+import 'package:fl_clash/models/models.dart';
+
+import 'constant.dart';
 
 class IpPurity {
   const IpPurity({
@@ -12,6 +15,9 @@ class IpPurity {
     required this.broadcast,
   });
 
+  static const lowRiskMax = 40;
+  static const mediumRiskMax = 70;
+
   final String ip;
 
   /// IPPure 的风险系数，0 到 100，越低越干净。
@@ -21,36 +27,36 @@ class IpPurity {
   final bool residential;
   final bool broadcast;
 
-  bool get trusted => score <= 40;
+  bool get trusted => score <= lowRiskMax;
 }
 
-/// IPPure 只返回调用方自己的出口 IP，所以查询必须经过目标节点。
 Future<IpPurity?> fetchIpPurity(
-  Dio dio, {
-  CancelToken? cancelToken,
-  Duration timeout = const Duration(seconds: 10),
+  CoreController core, {
+  required String proxyName,
 }) async {
   try {
-    final response = await dio
-        .get<String>(
-          'https://my.ippure.com/v1/info',
-          cancelToken: cancelToken,
-          options: Options(
-            responseType: ResponseType.plain,
-            validateStatus: (_) => true,
-          ),
-        )
-        .timeout(timeout);
-    if (response.statusCode != 200) {
+    final response = await core.outboundIp(
+      OutboundIpParams(
+        proxyName: proxyName,
+        urls: const ['https://my.ippure.com/v1/info'],
+        timeout: probeTimeoutDuration.inMilliseconds,
+      ),
+    );
+    if (response.error != null) {
       return null;
     }
-    final json = jsonDecode(response.data ?? '');
+    final json = jsonDecode(response.body);
     if (json is! Map<String, dynamic>) {
       return null;
     }
     final score = json['fraudScore'];
     final ip = json['ip'];
-    if (score is! num || ip is! String) {
+    if (score is! num ||
+        score < 0 ||
+        score > 100 ||
+        score % 1 != 0 ||
+        ip is! String ||
+        InternetAddress.tryParse(ip)?.type != InternetAddressType.IPv4) {
       return null;
     }
     return IpPurity(

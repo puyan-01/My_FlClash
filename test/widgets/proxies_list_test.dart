@@ -1,6 +1,7 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/node_purity.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/proxies/card.dart';
@@ -28,6 +29,15 @@ class _RecordingProxiesAction extends ProxiesAction {
   }
 }
 
+class _RecordingNodePurity extends NodePurityNotifier {
+  final tested = <String>[];
+
+  @override
+  Future<void> scanGroup(String groupName) async {
+    tested.add(groupName);
+  }
+}
+
 Group _group(String name, int count) => Group(
   type: GroupType.Selector,
   name: name,
@@ -36,6 +46,7 @@ Group _group(String name, int count) => Group(
 
 void main() {
   late ProviderContainer container;
+  late _RecordingNodePurity purity;
 
   Future<void> pumpList(
     WidgetTester tester, {
@@ -55,6 +66,7 @@ void main() {
       unfoldSet: unfoldSet,
     );
     _RecordingProxiesAction.tested.clear();
+    purity = _RecordingNodePurity();
     container = ProviderContainer(
       overrides: [
         viewModeProvider.overrideWithValue(viewMode),
@@ -64,6 +76,7 @@ void main() {
           GroupsState(value: groups),
         ),
         proxiesActionProvider.overrideWith(_RecordingProxiesAction.new),
+        nodePurityProvider.overrideWith(() => purity),
       ],
     );
     addTearDown(container.dispose);
@@ -337,13 +350,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the delay test button tests its own group only', (tester) async {
+  testWidgets('the refresh button tests its own group only', (tester) async {
     await pumpList(tester);
 
-    await tester.tap(actionOf('G0', 'Delay test'));
+    await tester.tap(actionOf('G0', 'Test latency and IP quality'));
     await tester.pump();
 
     expect(_RecordingProxiesAction.tested, ['G0']);
+    expect(purity.tested, ['G0']);
   });
 
   testWidgets('a group under test spins its button and ignores taps', (
@@ -361,9 +375,13 @@ void main() {
       ),
       findsOneWidget,
     );
-    await tester.tap(actionOf('G0', 'Delay test'), warnIfMissed: false);
+    await tester.tap(
+      actionOf('G0', 'Test latency and IP quality'),
+      warnIfMissed: false,
+    );
     await tester.pump();
     expect(_RecordingProxiesAction.tested, isEmpty);
+    expect(purity.tested, isEmpty);
 
     container.read(delayTestingGroupsProvider.notifier).stop('G0');
     await tester.pump();

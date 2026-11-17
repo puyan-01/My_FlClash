@@ -643,22 +643,7 @@ class ListHeader extends ConsumerWidget {
               onScrollToSelected: () {
                 onScrollToSelected(groupName);
               },
-              onDelayTest: () {
-                ref
-                    .read(proxiesActionProvider.notifier)
-                    .delayTestPageGroup(groupName)
-                    .then((_) {
-                      final purity = ref.read(nodePurityProvider).byNode;
-                      final hasPurity = group.all.any(
-                        (proxy) => purity.containsKey(proxy.name),
-                      );
-                      if (!hasPurity && group.all.length <= 20) {
-                        ref
-                            .read(nodePurityProvider.notifier)
-                            .scanGroup(groupName);
-                      }
-                    });
-              },
+              onDelayTest: () => testProxyPageGroup(ref, groupName),
               onPurityTest: () {
                 ref.read(nodePurityProvider.notifier).scanGroup(groupName);
               },
@@ -860,9 +845,11 @@ class _GroupActions extends StatelessWidget {
                   icon: const GlyphIcon(AppGlyphs.locate),
                 ),
                 IconButton(
-                  tooltip: context.appLocalizations.delayTest,
-                  onPressed: isDelayTesting ? null : onDelayTest,
-                  icon: isDelayTesting
+                  tooltip: context.appLocalizations.proxyDelayAndPurityTest,
+                  onPressed: isDelayTesting || isPurityTesting
+                      ? null
+                      : onDelayTest,
+                  icon: isDelayTesting || isPurityTesting
                       ? const ActivityIndicator(size: 24)
                       : const GlyphIcon(AppGlyphs.bolt),
                 ),
